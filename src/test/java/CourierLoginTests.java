@@ -21,69 +21,72 @@ public class CourierLoginTests {
     public static String login = "MKamen4";
     public static String password = "random123";
     public static String firstName = "Михаил";
+    public static String invalidLogin = "qwerty";
+    public static String invalidPassword = "asdfgh";
     public static String messageAuthorizationWithoutLoginOrPassword = "Недостаточно данных для входа";
     public static String messageNonexistetntCourierAuthorization = "Учетная запись не найдена";
 
     private CourierClient courierClient;
+    private Courier courier;
     private int id;
+    private Response validLoginResponse;
 
     @Before
     public void setUp() {
         RestAssured.baseURI = BASE_URL;
         courierClient = new CourierClient();
+        courier = new Courier(login, password, firstName);
+        courierClient.create(courier);
+        validLoginResponse = courierClient.login(credsFromCourier(courier));
     }
 
     @Test
     @Description("Авторизация созданного курьера")
     public void loginCourierTest() {
-        Courier courier = new Courier(login, password, firstName);
-        courierClient.create(courier);
 
         Response loginResponse = courierClient.login(credsFromCourier(courier));
         assertEquals("Некорректный код ответа при авторизации", SC_OK, loginResponse.statusCode());
 
-        id = loginResponse.as(CourierLoginResponse.class).getId();
     }
 
     @Test
     @Description("Попытка авторизации без логина")
     public void loginCourierWithoutLoginTest() {
-        Courier courier = new Courier(login, password, firstName);
-        courierClient.create(courier);
 
         Response loginResponse = courierClient.login(new CourierCreds(null, password));
         loginResponse.then().body("message", equalTo(messageAuthorizationWithoutLoginOrPassword)).and().statusCode(SC_BAD_REQUEST);
 
-        Response validLoginResponse = courierClient.login(credsFromCourier(courier));
-
-        id = validLoginResponse.as(CourierLoginResponse.class).getId();
     }
 
     @Test
     @Description("Попытка авторизации без логина")
     public void loginCourierWithoutPasswordTest() {
-        Courier courier = new Courier(login, password, firstName);
-        courierClient.create(courier);
+
 
         Response loginResponse = courierClient.login(new CourierCreds(login, null));
         loginResponse.then().body("message", equalTo(messageAuthorizationWithoutLoginOrPassword)).and().statusCode(SC_BAD_REQUEST);
 
-        Response validLoginResponse = courierClient.login(credsFromCourier(courier));
 
-        id = validLoginResponse.as(CourierLoginResponse.class).getId();
     }
 
     @Test
-    @Description("Авторизация несуществующего курьера")
-    public void loginNonexistentCourierTest() {
-
-        Response loginResponse = courierClient.login(new CourierCreds(login, password));
+    @Description("Авторизация c неверным логином")
+    public void loginWithInvalidLoginTest() {
+        Response loginResponse = courierClient.login(new CourierCreds(invalidLogin, password));
         loginResponse.then().body("message", equalTo(messageNonexistetntCourierAuthorization)).and().statusCode(SC_NOT_FOUND);
-
     }
+
+    @Test
+    @Description("Авторизация c неверным паролем")
+    public void loginWithInvalidPasswordTest() {
+        Response loginResponse = courierClient.login(new CourierCreds(login, invalidPassword));
+        loginResponse.then().body("message", equalTo(messageNonexistetntCourierAuthorization)).and().statusCode(SC_NOT_FOUND);
+    }
+
 
     @After
     public void tearTest() {
+        id = validLoginResponse.as(CourierLoginResponse.class).getId();
         courierClient.delete(id);
     }
 

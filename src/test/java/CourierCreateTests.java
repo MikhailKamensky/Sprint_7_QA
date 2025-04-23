@@ -22,74 +22,64 @@ public class CourierCreateTests {
     public static String firstName = "Михаил";
 
     private CourierClient courierClient;
+    private Courier courier;
     private int id;
 
     @Before
     public void setUp() {
         RestAssured.baseURI = BASE_URL;
         courierClient = new CourierClient();
+        courier = new Courier(login, password, firstName);
     }
 
     @Test
     @Description("Создание курьера с валидными параметрами")
     public void createCourierTest() {
-        Courier courier = new Courier(login, password, firstName);
-
         Response response = courierClient.create(courier);
 
-//        assertEquals("Некорректный код ответа", SC_CREATED, response.statusCode());
-        response.then().body("ok", equalTo(true)).and().statusCode(SC_CREATED);
-
-        Response loginResponse = courierClient.login(credsFromCourier(courier));
-
-        assertEquals("Некорректный код ответа при авторизации", SC_OK, loginResponse.statusCode());
-
-        id = loginResponse.as(CourierLoginResponse.class).getId();
+        response.then().statusCode(SC_CREATED).and().body("ok", equalTo(true));
     }
 
     @Test
     @Description("Создание двух курьеров с одинаковым логином")
     public void createIdenticalCourierTest() {
-        Courier courier = new Courier(login, password, firstName);
-
         Response response = courierClient.create(courier);
-
         assertEquals("Некорректный код ответа", SC_CREATED, response.statusCode());
-
         Courier identicalCourier = new Courier(login, password, firstName);
-
         Response identicalCourierResponse = courierClient.create(identicalCourier);
-
         assertEquals("Можно создать двух курьеров с одинаковым логинами", SC_CONFLICT, identicalCourierResponse.statusCode());
 
-        Response loginResponse = courierClient.login(credsFromCourier(courier));
-        id = loginResponse.as(CourierLoginResponse.class).getId();
     }
 
     @Test
     @Description("Создание курьера без передачи логина")
     public void createlCourierWithoutLoginTest() {
         Courier courier = new Courier(null, password, firstName);
-
         Response response = courierClient.create(courier);
-
         assertEquals("Некорректный код ответа", SC_BAD_REQUEST, response.statusCode());
-
     }
 
     @Test
     @Description("Создание курьера без передачи пароля")
     public void createlCourierWithoutPasswordTest() {
         Courier courier = new Courier(login, null, firstName);
-
         Response response = courierClient.create(courier);
-
         assertEquals("Некорректный код ответа", SC_BAD_REQUEST, response.statusCode());
     }
 
 
     @After
     public void tearTest() {
-        courierClient.delete(id);
+        try {
+            if (courier.getLogin() != null && courier.getPassword() != null) {
+                Response loginResponse = courierClient.login(credsFromCourier(courier));
+                if (loginResponse.statusCode() == SC_OK) {
+                    id = loginResponse.as(CourierLoginResponse.class).getId();
+                    courierClient.delete(id);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Ошибка при удалении курьера: " + e.getMessage());
+        }
     }
 }

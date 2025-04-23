@@ -12,6 +12,7 @@ public class Order {
         private String deliveryDate = "2025-05-05";
         private String comment = "";
         private List<String> color;
+
         public Order (List<String> color) {
             this.color = color;
         }
