@@ -31,7 +31,7 @@ public class OrderCreateTests {
         this.color = color;
     }
 
-    @Parameterized.Parameters ()
+    @Parameterized.Parameters (name = "Цвет самоката - {0}")
     public static Object[][] getColors() {
         return new Object[][] {
                 {List.of("BLACK", "GREY")},
