@@ -1,3 +1,4 @@
+import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import org.junit.Before;
@@ -24,6 +25,7 @@ public class OrderGetTests {
 
         @Test
         @DisplayName("Получение списка заказов")
+        @Description("Проверка получения списка заказов")
         public void orderGetListTest() {
                 Response response = orderClient.getOrderList();
                 response.then()

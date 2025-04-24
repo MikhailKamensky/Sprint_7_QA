@@ -37,7 +37,7 @@ public class OrderClient {
                 .header("Content-type", "application/json")
                 .body("{\"track\": " + track + "}")
                 .when()
-                .put(API_V1_ORDER_CANCEL);
+                .put(API_V1_ORDER_CANCEL+ "/" + track);
     }
 
 

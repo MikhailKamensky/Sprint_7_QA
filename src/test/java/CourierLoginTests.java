@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
@@ -41,7 +42,8 @@ public class CourierLoginTests {
     }
 
     @Test
-    @Description("Авторизация созданного курьера")
+    @Description("Проверка авторизации валидного курьера")
+    @DisplayName("Авторизация созданного курьера")
     public void loginCourierTest() {
 
         Response loginResponse = courierClient.login(credsFromCourier(courier));
@@ -50,7 +52,8 @@ public class CourierLoginTests {
     }
 
     @Test
-    @Description("Попытка авторизации без логина")
+    @Description("Проверка невозможности авторизации без передачи логина")
+    @DisplayName("Попытка авторизации без логина")
     public void loginCourierWithoutLoginTest() {
 
         Response loginResponse = courierClient.login(new CourierCreds(null, password));
@@ -59,7 +62,8 @@ public class CourierLoginTests {
     }
 
     @Test
-    @Description("Попытка авторизации без логина")
+    @Description("Проверка невозможности авторизации без передачи пароля")
+    @DisplayName("Попытка авторизации без пароля")
     public void loginCourierWithoutPasswordTest() {
 
 
@@ -70,14 +74,16 @@ public class CourierLoginTests {
     }
 
     @Test
-    @Description("Авторизация c неверным логином")
+    @Description("Проверка невозможности авторизоваться с заведомо несуществующим логином")
+    @DisplayName("Авторизация c неверным логином")
     public void loginWithInvalidLoginTest() {
         Response loginResponse = courierClient.login(new CourierCreds(invalidLogin, password));
         loginResponse.then().body("message", equalTo(messageNonexistetntCourierAuthorization)).and().statusCode(SC_NOT_FOUND);
     }
 
     @Test
-    @Description("Авторизация c неверным паролем")
+    @Description("Проверка невозможности авторизоваться с заведомо несуществующим паролем")
+    @DisplayName("Авторизация c неверным паролем")
     public void loginWithInvalidPasswordTest() {
         Response loginResponse = courierClient.login(new CourierCreds(login, invalidPassword));
         loginResponse.then().body("message", equalTo(messageNonexistetntCourierAuthorization)).and().statusCode(SC_NOT_FOUND);

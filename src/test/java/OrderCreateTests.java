@@ -1,3 +1,4 @@
+import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -23,7 +24,7 @@ public class OrderCreateTests {
     private static final String BASE_URL = "https://qa-scooter.praktikum-services.ru";
     private OrderClient orderClient;
     private int orderTrack;
-
+    private Response response;
 
     private List<String> color;
     public OrderCreateTests(List<String> color) {
@@ -48,18 +49,17 @@ public class OrderCreateTests {
 
     @Test
     @DisplayName("Создание заказа")
+    @Description("Проверка создания заказа с валидными данными")
     public void orderCreate() {
         Order order = new Order(color);
-        Response response =  orderClient.createOrder(order);
+        response =  orderClient.createOrder(order);
         response.then().body("track", instanceOf(Integer.class)).and().statusCode(SC_CREATED);
-
-        orderTrack = response.as(OrderCreateResponse.class).getOrderTrack();
-
     }
 
 
     @After
     public void clearTest() {
+        orderTrack = response.as(OrderCreateResponse.class).getOrderTrack();
         Response cancelResponse = orderClient.cancelOrder(orderTrack);
         cancelResponse.then().statusCode(SC_OK);  // Проверяем успешность отмены
         System.out.println("Отменён заказ с track: " + orderTrack);

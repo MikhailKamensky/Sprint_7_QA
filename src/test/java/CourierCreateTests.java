@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
@@ -34,6 +35,7 @@ public class CourierCreateTests {
 
     @Test
     @Description("Создание курьера с валидными параметрами")
+    @DisplayName("Создание курьера")
     public void createCourierTest() {
         Response response = courierClient.create(courier);
 
@@ -41,7 +43,8 @@ public class CourierCreateTests {
     }
 
     @Test
-    @Description("Создание двух курьеров с одинаковым логином")
+    @Description("Проверка невозможности создать курьеров с одинаковым логином")
+    @DisplayName("Создание курьеров с одинаковым логином")
     public void createIdenticalCourierTest() {
         Response response = courierClient.create(courier);
         assertEquals("Некорректный код ответа", SC_CREATED, response.statusCode());
@@ -52,7 +55,8 @@ public class CourierCreateTests {
     }
 
     @Test
-    @Description("Создание курьера без передачи логина")
+    @Description("Проверка невозможности создать курьеров без передачи логина")
+    @DisplayName("Создание курьеров без логина")
     public void createlCourierWithoutLoginTest() {
         Courier courier = new Courier(null, password, firstName);
         Response response = courierClient.create(courier);
@@ -60,7 +64,8 @@ public class CourierCreateTests {
     }
 
     @Test
-    @Description("Создание курьера без передачи пароля")
+    @Description("Проверка невозможности создать курьеров без передачи пароля")
+    @DisplayName("Создание курьера без передачи пароля")
     public void createlCourierWithoutPasswordTest() {
         Courier courier = new Courier(login, null, firstName);
         Response response = courierClient.create(courier);

@@ -36,6 +36,6 @@ public class CourierClient {
         return given()
                 .header("Content-type", "application/json")
                 .when()
-                .delete(API_V1_COURIER + "/" + id);
+                .delete(API_V1_COURIER + "/" + id);//добавил в ручку по указанию наставника, возвращает 404 через Postman
     }
 }
